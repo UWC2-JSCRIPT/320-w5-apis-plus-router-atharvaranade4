@@ -1,45 +1,58 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 
-export default function CharacterList({getData, data, isLoading, hasError}){   
-    useEffect(() =>{
-        getData()
-    },[getData])  // fetch data and update only when getdata changes
 
-    let people = data.map(item =>
-        `<div>
-        <p>CharacterName:${item.name}</p>
-        <button to={/characters/${item.name}}>${item.name} profile details</button>
-        </div>
-        `
+export default function CharacterList(){   
+    const [data, setData] = useState([])
+    const [isLoading, toggleLoading] = useState(true)
+    const [hasError, setHasError] = useState(false)
+    
+    useEffect(() => {    
+    let url = `https://swapi.dev/api/people/`
+    fetch(url) 
+    .then(response => response.json())
+    .then(data => {
+        setData(data.results)
+        console.log(data)
+        toggleLoading(false);
+    })
+    .catch((error) =>{
+      console.log(error)
+      toggleLoading(false)
+      setHasError(true)
+    })
+    }, []) // fetch data and update only when getdata changes
+
+    const peopleList = data.map((item ,index) =>{
+        // console.log(index, item)
+        return(
+            <>
+            <p key={index}>
+            <Link
+                to={`${index+1}`}>
+                <button>{item.name} Profile</button>
+            </Link>
+            </p>
+            </>
         )
-    let displayContent = <h3>Found no data</h3>
-    if (data.length > 0) {
-        displayContent = people
-    }      
+    })
 
     if (isLoading){
-        displayContent = <p>Loading character details...</p>
+        return <p>Loading characters...</p>
     }
 
     if (hasError) {
-        displayContent = <p>Error loading character details</p>
-    }
+        return <p>Error loading characters</p>
+    }      
+
 
     return (
         <>
-            <h1>All Star Wars</h1>
+            <h1>Star Wars Characters</h1>
             <div>
-                {displayContent}          
+                {peopleList}          
             </div>
         </>
     )
-}
-
-CharacterList.propTypes = {
-    getData: PropTypes.func.isRequired,
-    data: PropTypes.array.isRequired,
-    isLoading: PropTypes.bool.isRequired,
-    hasError: PropTypes.bool.isRequired
 }

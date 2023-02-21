@@ -1,52 +1,57 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 
-
-export default function CharacterDetails({people}){
-    const [profile, setProfile] = useState('')
-    const [loading, toggleLoading] = useState(true)
+export default function CharacterDetails({}){
+    const [profile, setProfile] = useState({})
+    const [isLoading, toggleLoading] = useState(true)
     const [hasError, setHasError] = useState(false)
+    
+    const {charId} = useParams()
+    console.log(charId)
 
-    useEffect(() =>{
-        fetch(`https://swapi.dev/api/people/${people}`) 
+    useEffect(() => {    
+        let url = `https://swapi.dev/api/people/${charId}/`
+        console.log(url)
+        fetch(url) 
         .then(response => response.json())
         .then(data => {
-            setProfile(data);
-            toggleLoading(false);
+            setProfile(data)
+            toggleLoading(false)
         })
         .catch((error) =>{
-            console.log(error)
-            toggleLoading(false)
-            setHasError(true)
+        console.log(error)
+        toggleLoading(false)
+        setHasError(true)
         })
-        // , // Handling error with React
-        // (error) => {
-        //     console.log(error)
-        //     toggleLoading(false)
-        //     setHasError(true)
-        // }
-    }, [])
+    }, [charId])
 
-    if (loading){
-        return <p>Loading character details...</p>
+    if (isLoading) {
+    return <p>loading...</p>
     }
 
     if (hasError) {
-        return <p>Error loading character details</p>
+    return <p>Error!</p>
     }
 
+    let displayContent = (
+        <>
+        <div className=''>
+          <h3>Name: {profile.name}</h3>
+          <h3>Birth year: {profile.birth_year}</h3>
+          <h3>Height: {profile.height}</h3>
+        </div>        
+        <Link to="/characters"><button>Character List</button></Link>
+        <Link to="/"><button>Home</button></Link>
+        </>
+    )   
     return (
         <>
-            <h3>Star Wars Character Details</h3>
+            <h1>Profile Details</h1>
             <div>
-                <p>{profile.name}</p>
-                <p>{profile.birth_year}</p>
-                <p>{profile.gender}</p>               
+                {displayContent}          
             </div>
         </>
     )
 }
-
-// CharacterDetails.propTypes = {
-//     people: PropTypes.string.isRequired
-// }
