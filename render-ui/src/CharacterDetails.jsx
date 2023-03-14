@@ -1,57 +1,65 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import {useParams} from 'react-router-dom';
+import { useState, useEffect } from "react"
+import { useParams, useNavigate, Link } from "react-router-dom"
+import PropTypes from "prop-types"
 
-export default function CharacterDetails({}){
-    const [profile, setProfile] = useState({})
-    const [isLoading, toggleLoading] = useState(true)
-    const [hasError, setHasError] = useState(false)
-    
-    const {charId} = useParams()
-    console.log(charId)
+function CharacterDetails({getData, data, isLoading, error, name, birth_year, height}) {
+  let {charid} = useParams()
+  // let [character, setCharacter] = useState({})
+  let navigate = useNavigate()
+  useEffect(() => {
+    getData(charid)
+  }, [charid])
+  let content = (
+    <div>
+      <h3>Found no data</h3>
+    </div>
+  )
+  console.log(data)
+  console.log(typeof {data}) 
+  console.log(typeof data)
 
-    useEffect(() => {    
-        let url = `https://swapi.dev/api/people/${charId}/`
-        console.log(url)
-        fetch(url) 
-        .then(response => response.json())
-        .then(data => {
-            setProfile(data)
-            toggleLoading(false)
-        })
-        .catch((error) =>{
-        console.log(error)
-        toggleLoading(false)
-        setHasError(true)
-        })
-    }, [charId])
+  
+  // let characterObj = data.find(item => item.name === charid)
+  // console.log(charid) // Id here is charid that is comes from CharacterList
+  // setCharacter(characterObj)
+  // console.log(character)
 
-    if (isLoading) {
-    return <p>loading...</p>
-    }
 
-    if (hasError) {
-    return <p>Error!</p>
-    }
-
-    let displayContent = (
-        <>
-        <div className=''>
-          <h3>Name: {profile.name}</h3>
-          <h3>Birth year: {profile.birth_year}</h3>
-          <h3>Height: {profile.height}</h3>
-        </div>        
-        <Link to="/characters"><button>Character List</button></Link>
-        <Link to="/"><button>Home</button></Link>
-        </>
-    )   
-    return (
-        <>
-            <h1>Profile Details</h1>
-            <div>
-                {displayContent}          
-            </div>
-        </>
+  if(data.length > 0) {
+    content = (
+      <div className=''>
+        <Link to="/">Back to Home</Link>
+        <h3>Name: {name}</h3>
+        <h3>Birth year: {birth_year}</h3>
+        <h3>Height: {height}</h3>
+      </div>
     )
+  }
+  if(error) {
+    content = navigate('/error')
+  }
+  if(isLoading) {
+    content = (
+      <div className=''>
+        <h3>Loading...</h3>
+      </div>
+    )
+  }
+  return (
+    <div>
+      {content}
+    </div>
+  )
 }
+
+CharacterDetails.propTypes = {
+  getData: PropTypes.func.isRequired,
+  data: PropTypes.array.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  error: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  birth_year: PropTypes.string,
+  height: PropTypes.string
+}
+
+export default CharacterDetails

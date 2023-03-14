@@ -1,58 +1,45 @@
-import React, { useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
+import { useEffect } from "react"
+import { Link } from "react-router-dom"
+import Character from "./Character"
+import PropTypes from "prop-types"
 
+function CharacterList({getData, data, isLoading, error}) {
+    useEffect(() => {
+    getData()
+    }, [])
 
+    let people = data.map(item => 
+    <Character 
+        key={item.created} 
+        name={item.name} 
+    />)
 
-export default function CharacterList(){   
-    const [data, setData] = useState([])
-    const [isLoading, toggleLoading] = useState(true)
-    const [hasError, setHasError] = useState(false)
-    
-    useEffect(() => {    
-    let url = `https://swapi.dev/api/people/`
-    fetch(url) 
-    .then(response => response.json())
-    .then(data => {
-        setData(data.results)
-        console.log(data)
-        toggleLoading(false);
-    })
-    .catch((error) =>{
-      console.log(error)
-      toggleLoading(false)
-      setHasError(true)
-    })
-    }, []) // fetch data and update only when getdata changes
-
-    const peopleList = data.map((item ,index) =>{
-        // console.log(index, item)
-        return(
-            <>
-            <p key={index}>
-            <Link
-                to={`${index+1}`}>
-                <button>{item.name} Profile</button>
-            </Link>
-            </p>
-            </>
-        )
-    })
-
-    if (isLoading){
-        return <p>Loading characters...</p>
+    let content = <h3>Found no data</h3>
+    console.log(data)
+    if(data.length > 0) {
+    content = people
+    }
+    if(error) {
+    }
+    if(isLoading) {
+    content = <h3>Loading...</h3>
     }
 
-    if (hasError) {
-        return <p>Error loading characters</p>
-    }      
-
-
     return (
-        <>
-            <h1>Star Wars Characters</h1>
-            <div>
-                {peopleList}          
-            </div>
-        </>
+    <div className=''>
+        <Link to={`/`}>
+            <button>Back to Home</button>
+        </Link>
+        {content}
+    </div>
     )
 }
+
+CharacterList.propTypes = {
+  getData: PropTypes.func.isRequired,
+  data: PropTypes.array.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  error: PropTypes.string.isRequired
+}
+
+export default CharacterList

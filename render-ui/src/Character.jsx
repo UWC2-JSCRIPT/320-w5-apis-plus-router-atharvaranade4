@@ -6,7 +6,7 @@ return (
     <>
     <div>
         <p>{name}</p>
-        <Link to={`/characters/${index+1}`}>
+        <Link to={`/characters/${name}`}>
             <button>Character Profile</button>
         </Link>
     </div>
